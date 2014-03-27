@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<!--Started at 10:40am 27/03/2013-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
+        <!-- STYLESHEETS -->
+        <link rel="stylesheet" href="vendors/ios7.css" />
+        <link rel="stylesheet" href="vendors/jquery.mobile.icons.min.css" />
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.1/jquery.mobile.structure-1.4.1.min.css" />
+        
+        <!-- JS FILES -->
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/mobile/1.4.1/jquery.mobile-1.4.1.min.js"></script>
+        <script type="text/javascript" src="vendors/cordova.js"></script>
+        <script src="http://maps.google.com/maps/api/js?sensor=true&language=en"></script>
+		
+        
+         <script>
+            var company_name="Organised Chaos"; //The Company/organisation name
+            var home_blurb="We at Organised Chaos specialise in teaching children life skills, using the medium of martial arts to build confidence and promote respect for self, others and property.. To get started click on a section below."; //The home page summary below the logo
+            var main_logo_src="images/logo.png"; //Location of the company logo (should be "images/logo.[png/jpg]" by default
+            var logo_header="Organised Chaos"; //If the logo needs any text displaying below it.. this is where to put that!
+            var phone="07763314185"; //Main phone number for the company
+            var email="admin@organisedchaos.org.uk"; //Main email address
+            var logo_style="width:50%; height:25%; display: block; margin-left: auto; margin-right: auto;";
+            var logo_header_style="color:#157dfb;";
+            
+            //THESE APPEAR ON NAVIGATION BARS (KEEP SHORT-ISH)
+            var nav1="Home";
+            var nav2="About";
+            var nav3="Times";
+            var nav4="Clubs";
+            var nav5="Map";
+            
+            //THESE ARE TO UNIQULEY ID PAGES (SHOULD BE SIMILARE TO ABOVE) **!!NO SPACES!!**
+            var nav1_name="home";
+            var nav2_name="about";
+            var nav3_name="times";
+            var nav4_name="clubs";
+            var nav5_name="map";
+            
+            //ICONS FOR THE NAVIGATION BAR (MAKE SURE THEY MAKE SENSE!)
+            var nav1_icon="home";
+            var nav2_icon="info";
+            var nav3_icon="clock";
+            var nav4_icon="grid";
+            var nav5_icon="location";
+             
+            //HEADER TITLES FOR PAGES
+            var nav2_header="About Us";
+            var nav3_header="Class Times";
+            var nav4_header="Clubs";
+            var nav5_header="Map";
+             
+            var nav2_content="We are Michelle and Rex Gath, and we have been training in Martial arts for a combined total of 54 years. I am a 4th Degree Master in Sokudo and Self Defense, and Rex is a Second degree Blackbelt in Sokudo and Kickboxing. We both hold Nationally Recognized Coaching Qualifications, along with Enhanced Disclosure CRB Certificates, Child Protection Certificates and valid First Aid Certificates. <br/>Our initial aim is to give as many children as possible the opportunity to see first hand, that martial arts can be fun and interesting without being overbearing or a chore. At Organised Chaos we believe that martial arts is a long term commitment, therefore when joining a club the experience should first and foremost be warm, friendly and supportive, but with clear boundaries that are easy and fun to follow. We have a very good retention rate compared with other groups, and believe that this is testament to the quality of the coaching and the delivery of our classes.";
+            
+        </script>
+        <script id="MarkerTemplate" type="text/x-jquery-tmpl">
+<div class="av-areaInfo">
+<h3><#= area.Name #></h3>
+<div class="av-areaInfoImage">
+<# if (area.Images[0]) { #>
+<img src="<#= area.Images[0] #>" alt="<#= area.Name #>" />
+<# } #>
+</div>
+<p>
+<# if (area.Description.length > 0) { #>
+<#= area.Description #><br><br>
+<# } #>
+Directions: <a href="http://www.google.com/maps?daddr=<#= area.Latitude # rel="nofollow">,<#= area.Longitude#>&mrsp=0" target="_blank">To here</a> - <a href="http://www.google.com/maps?saddr=<#= area.Latitude # rel="nofollow">,<#= area.Longitude#>&mrsp=0" target="_blank">From here</a>
+</p>
+</div>
+</script>
+        <script type="text/javascript">
+            
+      this.parseTemplate = function(str, data) {
+var err = "";
+try {
+var func = _tmplCache[str];
+if (!func) {
+var strFunc =
+"var p=[],print=function(){p.push.apply(p,arguments);};" +
+"with(obj){p.push('" +
+str.replace( /[\r\t\n]/g , " ")
+.replace( /'(?=[^#]*#>)/g , "\t")
+.split("'").join("\\'")
+.split("\t").join("'")
+.replace( /< #=(.+?)#>/g , "',$1,'")
+.split("< #").join("');")
+.split("#>").join("p.push('")
++ "');}return p.join('');";
+
+//alert(strFunc);
+func = new Function("obj", strFunc);
+_tmplCache[str] = func;
+}
+return func(data);
+} catch(e) {
+err = e.message;
+}
+return "< # ERROR: " + err + " # >";
+};
+
+            $(document).bind("mobileinit", function () 
+            {
+    		    $.mobile.ajaxEnabled = false;
+                $.mobile.page.prototype.options.backBtnTheme = null;
+                
+    	    });
+
+               
+    	   
+            
+       
+            
+            
+        // Call onDeviceReady when PhoneGap is loaded.
+		//
+		// At this point, the document has loaded but phonegap-1.0.0.js has not.
+		// When PhoneGap is loaded and talking with the native device,
+		// it will call the event `deviceready`.
+		// 
+		document.addEventListener("deviceready", onDeviceReady, false);
+	
+		// PhoneGap is loaded and it is now safe to make calls PhoneGap methods
+		//
+		function onDeviceReady() 
+		{
+            if (parseFloat(window.device.version) === 7.0) {
+          document.body.style.marginTop = "20px";
+    }
+			// Now safe to use the PhoneGap API
+			//hide splashscreen
+			navigator.splashscreen.hide();                                              
+});}
+
+
+    </script>   
+
+    </head>
+    
+    
+    <body>
+        
+        <!--------------------------------000000000000000000PAGE00000000000000--------------HOME--------------->
+        
+        <div data-role="page" id="home" class="page"><!-- page -->
+            
+            <div data-role="content"><!-- content -->
+               
+                <div> <!--LOGO-->
+                <img class="main_logo"/>
+                <h1 align="center" class="logo_header"></h1>
+                </div>
+               
+                <div> <!--MAIN BLURB-->
+                <p align="center" id="home_blurb"></p>
+                </div>
+              
+                <br/>
+                <a id="phone" data-role="button" data-icon="phone" rel="external" >Phone Us</a>
+                <a id="email" data-role="button" data-icon="mail" rel="external" >Email Us</a>
+                
+               
+                
+            </div><!-- /content -->
+            
+            <div data-theme="a" data-role="footer" data-position="fixed"><!-- footer -->
+                <div data-role="navbar" data-iconpos="top">
+                    <ul>
+                        <li>
+                            <a data-theme="a" class="ui-btn-active ui-state-persist nav1">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav2"  data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav3"  data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav4"  data-theme="a">
+                            </a>
+                        </li>
+                         <li>
+                            <a class="nav5"  data-theme="a">
+                            </a>
+                        </li>
+                      
+                    </ul>
+                </div>
+            </div><!-- /footer -->
+        </div><!-- /page -->
+        
+        
+        <!--------------------------------000000000000000000PAGE00000000000000--------------NAV 2--------------->
+        
+        <div data-role="page" class="page"><!-- page -->
+            
+            <div data-theme="a" data-role="header" data-position="fixed" data-nobackbtn="true"><!-- header -->
+                <h1 id="nav2_header"></h1>
+                
+                <a data-role="button" data-rel="back" data-icon="false" data-iconpos="left" data-theme="a" data-corners="false" data-shadow="false"  data-iconshadow="false" style="border:none;"><img src="vendors/icons-png/back.png" style="border: none; outline:0;"></a>
+                
+                    <a href="#page2-menu" data-icon="false" data-iconpos="right" data-theme="a" data-corners="false" data-shadow="false" data-iconshadow="false" style="border:none;"><img src="vendors/icons-png/bars-blue.png" style="border: none; outline:0;"></a>
+            </div><!-- /header -->
+            
+            <div data-role="content"><!-- content -->
+               
+                <div> <!--LOGO-->
+                <img class="main_logo"/>
+                </div>
+               
+                <p align="center" id="nav2_content"></p>
+                
+                <a href="rex.html" data-role="button" data-icon="info" rel="external">Sensei Rex</a>
+                <a href="michelle.html" data-role="button" data-icon="info" rel="external">Sensei Michelle</a>
+                
+                
+            </div><!-- /content -->
+            
+            <div data-theme="a" data-role="footer" data-position="fixed"><!-- footer -->
+                <div data-role="navbar" data-iconpos="top">
+                    <ul>
+                        <li>
+                            <a class="nav1" data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a data-theme="a" class="ui-btn-active ui-state-persist nav2">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav3"  data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav4"  data-theme="a">
+                            </a>
+                        </li>
+                         <li>
+                            <a class="nav5"  data-theme="a">
+                            </a>
+                        </li>
+                      
+                    </ul>
+                </div>
+            </div><!-- /footer -->
+            
+            <!-- PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL -->
+        <div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="page2-menu" data-theme="a">
+            <ul data-role="listview" data-theme="d">
+        	   <li data-icon="delete"><a href="#" data-rel="close">Close</a></li>
+        	
+            </ul>
+            <br>
+            <div>
+                <a class="ui-btn ui-shadow ui-corner-all nav1" data-inline="true">Home</a>
+                <a class="ui-btn ui-shadow ui-corner-all ui-btn-active ui-state-persist nav2" data-inline="true">About</a>
+                <a class="ui-btn ui-shadow ui-corner-all nav3" data-inline="true">Tips</a>
+                <a class="ui-btn ui-shadow ui-corner-all nav4" data-inline="true">Offers</a>
+                <a class="ui-btn ui-shadow ui-corner-all nav5" data-inline="true">Map</a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <p align="center">This App Was Brought To You By:</p>
+            <p align="center"><a href="http://www.appliam.com/" align="center" rel="external">www.appliam.com</a> &copy;</p>  
+         </div><!-- /panel --> 
+        </div><!-- /page -->
+        
+        
+        <!--------------------------------000000000000000000PAGE00000000000000---------------NAV 3------------->
+        
+        <div data-role="page" class="page"><!-- page -->
+            
+            <div data-theme="a" data-role="header" data-position="fixed" data-nobackbtn="true"><!-- header -->
+                <h1 id="nav3_header"></h1>
+                
+                <a data-role="button" data-rel="back" data-icon="false" data-iconpos="left" data-theme="a" data-corners="false" data-shadow="false"  data-iconshadow="false" style="border:none;"><img src="vendors/icons-png/back.png" style="border: none; outline:0;"></a>
+                
+                    <a href="#page3-menu" data-icon="false" data-iconpos="right" data-theme="a" data-corners="false" data-shadow="false" data-iconshadow="false" style="border:none;"><img src="vendors/icons-png/bars-blue.png" style="border: none; outline:0;"></a>
+            </div><!-- /header -->
+            
+            <div data-role="content"><!-- content -->
+               
+                <div> <!--LOGO-->
+                <img class="main_logo"/>
+                
+                </div>
+               
+                <div data-role="collapsible">
+                    <h3>Monday</h3>
+                    <div class="ui-grid-a">
+              <div class="ui-block-a">
+                  <h3>CLUB</h3></div>
+              <div class="ui-block-b">
+                  <h3>TIME</h3></div>
+              <div class="ui-block-a">
+                  <p width="100%">Westholme Infant School</p>
+              </div>
+              <div class="ui-block-b">
+                  <p width="100%">Years 1 and 2<br/>
+3.30pm - 4.30pm <br/>
+(Exclusive to Westholme students)</p>
+              </div>
+              <div class="ui-block-a">
+                  <p>Organised Chaos Studio</p>
+              </div>
+              <div class="ui-block-b">
+                  <p>Elite Group<br/>
+Invitation Only<br/>
+Children<br/>
+6:00pm - 7:00pm</p>
+              </div>
+              <div class="ui-block-a">
+                  <p>Organised Chaos Studio</p>
+              </div>
+              <div class="ui-block-b">
+                  <p>Kickboxing<br/>
+Seniors<br/>
+7:30pm - 8:30pm</p>
+              </div>
+        </div>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>Tuesday</h3>
+                    <div class="ui-grid-a">
+              <div class="ui-block-a">
+                  <h3>CLUB</h3></div>
+              <div class="ui-block-b">
+                  <h3>TIME</h3></div>
+              <div class="ui-block-a">
+                  <p width="100%">St Peters RC Primary School</p>
+              </div>
+              <div class="ui-block-b">
+                  <p width="100%">8 yrs & 9 yrs<br/>
+3.30pm - 4.30pm <br/>
+(Exclusive to St Peters students)</p>
+              </div>
+              <div class="ui-block-a">
+                  <p>Feniscowles Community Hall</p>
+              </div>
+              <div class="ui-block-b">
+                  <p>5:30pm to 6:30pm Beginners</p>
+              </div>
+              <div class="ui-block-a">
+                  <p>Feniscowles Community Hall</p>
+              </div>
+              <div class="ui-block-b">
+                  <p>6:30pm to 7:30pm (All Ages)</p>
+              </div>
+        </div>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>Wednesday</h3>
+                    <div class="ui-grid-a">
+              <div class="ui-block-a">
+                  <h3>CLUB</h3></div>
+              <div class="ui-block-b">
+                  <h3>TIME</h3></div>
+              <div class="ui-block-a">
+                  <p width="100%">Westholme Boy's Junior School</p>
+              </div>
+              <div class="ui-block-b">
+                  <p width="100%">Junior Boys<br/>
+3:45pm - 4:45pm<br/>
+(Exclusive to Westholme students)</p>
+              </div>
+              <div class="ui-block-a">
+                  <p>Organised Chaos Studio</p>
+              </div>
+              <div class="ui-block-b">
+                  <p>Children<br/>
+6:30pm - 7:30pm</p>
+              </div>
+              <div class="ui-block-a">
+                  <p>Organised Chaos Studio</p>
+              </div>
+              <div class="ui-block-b">
+                  <p>Seniors<br/>
+7:45pm - 9:00pm</p>
+              </div>
+        </div>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>Thursday</h3>
+                    <div class="ui-grid-a">
+              <div class="ui-block-a">
+                  <h3>CLUB</h3></div>
+              <div class="ui-block-b">
+                  <h3>TIME</h3></div>
+              <div class="ui-block-a">
+                  <p width="100%">Westholme Boy's Junior School</p>
+              </div>
+              <div class="ui-block-b">
+                  <p width="100%">Junior Boys/Girls<br/>
+3:45pm - 4:45pm<br/>
+(Exclusive to Westholme students)</p>
+              </div>
+              <div class="ui-block-a">
+                  <p>Organised Chaos Studio</p>
+              </div>
+              <div class="ui-block-b">
+                  <p>Children<br/>
+6pm - 7pm</p>
+              </div>
+        </div>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>Friday</h3>
+                    <div class="ui-grid-a">
+              <div class="ui-block-a">
+                  <h3>CLUB</h3></div>
+              <div class="ui-block-b">
+                  <h3>TIME</h3></div>
+              <div class="ui-block-a">
+                  <p width="100%">Westholme Infant School</p>
+              </div>
+              <div class="ui-block-b">
+                  <p width="100%">Year's 1 and 2<br/>
+3.45pm - 4.45pm<br/>
+(Exclusive to Westholme students)</p>
+              </div>
+
+        </div>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>Saturday</h3>
+                    <div class="ui-grid-a">
+              <div class="ui-block-a">
+                  <h3>CLUB</h3></div>
+              <div class="ui-block-b">
+                  <h3>TIME</h3></div>
+              <div class="ui-block-a">
+                  <p width="100%">Little Harwood Community Centre</p>
+              </div>
+              <div class="ui-block-b">
+                  <p width="100%">10am - 11am (4yrs to 8yrs)</p>
+              </div>
+              <div class="ui-block-a">
+                  <p>Little Harwood Community Centre</p>
+              </div>
+              <div class="ui-block-b">
+                  <p>11am - 12pm (9yrs+)</p>
+              </div>
+              <div class="ui-block-a">
+                  <p>Little Harwood Community Centre</p>
+              </div>
+              <div class="ui-block-b">
+                  <p>12pm & 1pm Senior Grades</p>
+              </div>
+        </div>
+                </div>
+                
+                
+                
+                
+            </div><!-- /content -->
+            
+            <div data-theme="a" data-role="footer" data-position="fixed"><!-- footer -->
+                <div data-role="navbar" data-iconpos="top">
+                    <ul>
+                        <li>
+                            <a class="nav1" data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a data-theme="a" class="nav2">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="ui-btn-active ui-state-persist nav3"  data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav4"  data-theme="a">
+                            </a>
+                        </li>
+                         <li>
+                            <a class="nav5"  data-theme="a">
+                            </a>
+                        </li>
+                      
+                    </ul>
+                </div>
+            </div><!-- /footer -->
+            
+            <!-- PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL -->
+        <div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="page3-menu" data-theme="a">
+            <ul data-role="listview" data-theme="d">
+        	   <li data-icon="delete"><a href="#" data-rel="close">Close</a></li>
+        	
+            </ul>
+            <br>
+            <div>
+                <a class="ui-btn ui-shadow ui-corner-all nav1" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all nav2" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all ui-btn-active ui-state-persist nav3" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all nav4" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all nav5" data-inline="true"></a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <p align="center">This App Was Brought To You By:</p>
+            <p align="center"><a href="http://www.appliam.com/" align="center" rel="external">www.appliam.com</a> &copy;</p>  
+         </div><!-- /panel --> 
+        </div><!-- /page -->
+        
+        
+        
+        <!--------------------------------000000000000000000PAGE00000000000000--------------NAV 4--------------->
+        
+        <div data-role="page" class="page"><!-- page -->
+            
+            <div data-theme="a" data-role="header" data-position="fixed" data-nobackbtn="true"><!-- header -->
+                <h1 id="nav4_header"></h1>
+                
+                <a data-role="button" data-rel="back" data-icon="false" data-iconpos="left" data-theme="a" data-corners="false" data-shadow="false"  data-iconshadow="false" style="border:none;"><img src="vendors/icons-png/back.png" style="border: none; outline:0;"></a>
+                
+                    <a href="#page4-menu" data-icon="false" data-iconpos="right" data-theme="a" data-corners="false" data-shadow="false" data-iconshadow="false" style="border:none;"><img src="vendors/icons-png/bars-blue.png" style="border: none; outline:0;"></a>
+            </div><!-- /header -->
+            
+            <div data-role="content"><!-- content -->
+               
+                <div> <!--LOGO-->
+                <img class="main_logo" style="width=100%; height: 250px; display: block; margin-left: auto; margin-right: auto;"/>
+               
+                </div>
+               
+                <div data-role="collapsible">
+                    <h3>Organised Chaos Studio</h3>
+                    <p align="center">Hollins Grove Street Mills<br/>
+Hollins Grove Street<br/>
+Darwen<br/>
+BB3 1HG</p>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>St Peters RC Primary School</h3>
+                    <p align="center">Hawkins Street<br/>
+Blackburn<br/>
+Lancashire<br/>
+BB2 2RY</p>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>Feniscowles Community Hall</h3>
+                    <p align="center">York Terrace<br/>
+Feniscowles<br/>
+Blackburn<br/>
+BB2 5EU </p>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>Westholme Boy's Junior School</h3>
+                    <p align="center">Beardwood House<br/>
+Wycollar Road<br/>
+Blackburn<br/>
+BB2 7AF</p>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>Westholme Infant School</h3>
+                    <p align="center">Billinge House<br/>
+Preston New Road<br/>
+Blackburn<br/>
+BB2 6PS</p>
+                </div>
+                
+                <div data-role="collapsible">
+                    <h3>Little Harwood Community Centre</h3>
+                    <p align="center">Whalley Old Rd<br/>
+Blackburn<br/>
+Lancashire<br/>
+BB1 5PQ </p>
+                </div>
+                
+            </div><!-- /content -->
+            
+            <div data-theme="a" data-role="footer" data-position="fixed"><!-- footer -->
+                <div data-role="navbar" data-iconpos="top">
+                    <ul>
+                        <li>
+                            <a class="nav1" data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a data-theme="a" class="nav2">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav3"  data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="ui-btn-active ui-state-persist nav4"  data-theme="a">
+                            </a>
+                        </li>
+                         <li>
+                            <a class="nav5"  data-theme="a">
+                            </a>
+                        </li>
+                      
+                    </ul>
+                </div>
+            </div><!-- /footer -->
+            
+            <!-- PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL -->
+        <div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="page4-menu" data-theme="a">
+            <ul data-role="listview" data-theme="d">
+        	   <li data-icon="delete"><a href="#" data-rel="close">Close</a></li>
+        	
+            </ul>
+            <br>
+            <div>
+                <a class="ui-btn ui-shadow ui-corner-all nav1" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all nav2" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all nav3" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all ui-btn-active ui-state-persist nav4" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all nav5" data-inline="true"></a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <p align="center">This App Was Brought To You By:</p>
+            <p align="center"><a href="http://www.appliam.com/" align="center" rel="external">www.appliam.com</a> &copy;</p>  
+         </div><!-- /panel --> 
+        </div><!-- /page -->
+        
+        
+        
+        <!--------------------------------000000000000000000PAGE00000000000000-------------NAV 5---------------->
+        
+        <div data-role="page" class="page" ><!-- page -->
+            
+            <div data-theme="a" data-role="header" data-position="fixed" data-nobackbtn="true"><!-- header -->
+                <h1 id="nav5_header"></h1>
+                
+                <a data-role="button" data-rel="back" data-icon="false" data-iconpos="left" data-theme="a" data-corners="false" data-shadow="false"  data-iconshadow="false" style="border:none;"><img src="vendors/icons-png/back.png" style="border: none; outline:0;"></a>
+                
+                    <a href="#page5-menu" data-icon="false" data-iconpos="right" data-theme="a" data-corners="false" data-shadow="false" data-iconshadow="false" style="border:none;"><img src="vendors/icons-png/bars-blue.png" style="border: none; outline:0;"></a>
+            </div><!-- /header -->
+            
+            <div data-role="content"><!-- content -->
+               
+               
+                <div id="map_wrapper">
+                    <div id="map_canvas" class="mapping"></div>
+                </div>      
+                
+                
+            </div><!-- /content -->
+            
+            <div data-theme="a" data-role="footer" data-position="fixed"><!-- footer -->
+                <div data-role="navbar" data-iconpos="top">
+                    <ul>
+                        <li>
+                            <a class="nav1" data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a data-theme="a" class="nav2">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav3"  data-theme="a">
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav4"  data-theme="a">
+                            </a>
+                        </li>
+                         <li>
+                            <a class="ui-btn-active ui-state-persist nav5"  data-theme="a">
+                            </a>
+                        </li>
+                      
+                    </ul>
+                </div>
+            </div><!-- /footer -->
+            
+            <!-- PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL PANEL -->
+        <div data-role="panel" data-position="right" data-position-fixed="false" data-display="overlay" id="page5-menu" data-theme="a">
+            <ul data-role="listview" data-theme="d">
+        	   <li data-icon="delete"><a href="#" data-rel="close">Close</a></li>
+        	
+            </ul>
+            <br>
+            <div>
+                <a class="ui-btn ui-shadow ui-corner-all nav1" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all nav2" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all nav3" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all nav4" data-inline="true"></a>
+                <a class="ui-btn ui-shadow ui-corner-all ui-btn-active ui-state-persist nav5" data-inline="true"></a>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <p align="center">This App Was Brought To You By:</p>
+            <p align="center"><a href="http://www.appliam.com/" align="center" rel="external">www.appliam.com</a> &copy;</p>  
+         </div><!-- /panel --> 
+        </div><!-- /page -->
+        
+        
+        <script>
+            document.title=company_name;
+            
+            document.getElementById("home_blurb").innerHTML=home_blurb;
+            $('.main_logo').attr('src', main_logo_src);
+            $('.main_logo').attr('style', logo_style);
+            $('.logo_header').html(logo_header);
+            $('.logo_header').attr('style', logo_header_style);
+            document.getElementById("phone").href=("tel:"+phone);
+            document.getElementById("email").href=("mailto:"+email);
+            
+            document.getElementsByClassName("page")[1].id=(nav2_name);
+            document.getElementsByClassName("page")[2].id=(nav3_name);
+            document.getElementsByClassName("page")[3].id=(nav4_name);
+            document.getElementsByClassName("page")[4].id=(nav5_name);
+            
+            $(".nav1").html(nav1);
+            $(".nav2").html(nav2);
+            $(".nav3").html(nav3);
+            $(".nav4").html(nav4);
+            $(".nav5").html(nav5);
+            
+            var nav1_url = "#"+nav1_name;
+            var nav2_url = "#"+nav2_name;
+            var nav3_url = "#"+nav3_name;
+            var nav4_url = "#"+nav4_name;
+            var nav5_url = "#"+nav5_name;
+            
+            $(".nav1").attr("href", nav1_url);
+            $(".nav2").attr("href", nav2_url);
+            $(".nav3").attr("href", nav3_url);
+            $(".nav4").attr("href", nav4_url);
+            $(".nav5").attr("href", nav5_url);
+            
+            $(".nav1").attr("data-icon", nav1_icon);
+            $(".nav2").attr("data-icon", nav2_icon);
+            $(".nav3").attr("data-icon", nav3_icon);
+            $(".nav4").attr("data-icon", nav4_icon);
+            $(".nav5").attr("data-icon", nav5_icon);
+            
+            document.getElementById("nav2_header").innerHTML=nav2_header;
+            document.getElementById("nav3_header").innerHTML=nav3_header;
+            document.getElementById("nav4_header").innerHTML=nav4_header;
+            document.getElementById("nav5_header").innerHTML=nav5_header;
+            
+            document.getElementById("nav2_content").innerHTML=nav2_content;
+            
+            
+             $(initialize);
+
+    	    function initialize() {
+    var map;
+    var bounds = new google.maps.LatLngBounds();
+    var mapOptions = {
+        mapTypeId: 'roadmap'
+    };
+                    
+    // Display a map on the page
+    map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+    map.setTilt(45);
+        
+    // Multiple Markers
+    var markers = [
+        ['Organised Chaos Studios', 53.706234,-2.475421],
+        ['Westholme Infants School', 53.752111,-2.508577],
+        ['Westholme Boys Junior', 53.755169,-2.509843],
+        ['Little Harwood Community Centre', 53.759964,-2.465404],
+        ['Fenniscowles Community Hall', 53.727617,-2.537523],
+        ['St Peters RC Primary School', 53.73696,-2.507161]
+    ];
+                        
+  
+        
+    // Display multiple markers on a map
+    var infoWindow = new google.maps.InfoWindow(), marker, i;
+    
+    // Loop through our array of markers & place each one on the map  
+    for( i = 0; i < markers.length; i++ ) {
+        var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
+        bounds.extend(position);
+        
+        marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            title: markers[i][0]
+        });
+        
+        // Automatically center the map fitting all markers on the screen
+        map.fitBounds(bounds);
+      
+        google.maps.event.addListener(marker, "click", function(event) {
+            var area = this.get('position');           
+            var infoWindowHtml = parseTemplate($("#MarkerTemplate").html(), { location : position} );
+            infoWindow.setContent(infoWindowHtml);
+            infoWindow.open(map, this);
+         });
+    
+    }
+
+    // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
+    var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+        this.setZoom(12);
+        google.maps.event.removeListener(boundsListener);
+    });
+
+}
+
+$(document).on("pageinit", "#map", function() //Change #map to map page name 
+            {
+                initialize();
+            });
+            
+            
+        </script>
+    </body>
+</html>
