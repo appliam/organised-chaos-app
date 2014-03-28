@@ -25,7 +25,7 @@
             var logo_header="Organised Chaos"; //If the logo needs any text displaying below it.. this is where to put that!
             var phone="07763314185"; //Main phone number for the company
             var email="admin@organisedchaos.org.uk"; //Main email address
-            var logo_style="width:50%; height:25%; display: block; margin-left: auto; margin-right: auto;";
+            var logo_style="width:50%; height:25%; display: block; margin-left: auto; margin-right: auto; max-height:347px; max-width:201px;";
             var logo_header_style="color:#157dfb;";
             
             //THESE APPEAR ON NAVIGATION BARS (KEEP SHORT-ISH)
@@ -58,51 +58,8 @@
             var nav2_content="We are Michelle and Rex Gath, and we have been training in Martial arts for a combined total of 54 years. I am a 4th Degree Master in Sokudo and Self Defense, and Rex is a Second degree Blackbelt in Sokudo and Kickboxing. We both hold Nationally Recognized Coaching Qualifications, along with Enhanced Disclosure CRB Certificates, Child Protection Certificates and valid First Aid Certificates. <br/>Our initial aim is to give as many children as possible the opportunity to see first hand, that martial arts can be fun and interesting without being overbearing or a chore. At Organised Chaos we believe that martial arts is a long term commitment, therefore when joining a club the experience should first and foremost be warm, friendly and supportive, but with clear boundaries that are easy and fun to follow. We have a very good retention rate compared with other groups, and believe that this is testament to the quality of the coaching and the delivery of our classes.";
             
         </script>
-        <script id="MarkerTemplate" type="text/x-jquery-tmpl">
-<div class="av-areaInfo">
-<h3><#= area.Name #></h3>
-<div class="av-areaInfoImage">
-<# if (area.Images[0]) { #>
-<img src="<#= area.Images[0] #>" alt="<#= area.Name #>" />
-<# } #>
-</div>
-<p>
-<# if (area.Description.length > 0) { #>
-<#= area.Description #><br><br>
-<# } #>
-Directions: <a href="http://www.google.com/maps?daddr=<#= area.Latitude # rel="nofollow">,<#= area.Longitude#>&mrsp=0" target="_blank">To here</a> - <a href="http://www.google.com/maps?saddr=<#= area.Latitude # rel="nofollow">,<#= area.Longitude#>&mrsp=0" target="_blank">From here</a>
-</p>
-</div>
-</script>
+ 
         <script type="text/javascript">
-            
-      this.parseTemplate = function(str, data) {
-var err = "";
-try {
-var func = _tmplCache[str];
-if (!func) {
-var strFunc =
-"var p=[],print=function(){p.push.apply(p,arguments);};" +
-"with(obj){p.push('" +
-str.replace( /[\r\t\n]/g , " ")
-.replace( /'(?=[^#]*#>)/g , "\t")
-.split("'").join("\\'")
-.split("\t").join("'")
-.replace( /< #=(.+?)#>/g , "',$1,'")
-.split("< #").join("');")
-.split("#>").join("p.push('")
-+ "');}return p.join('');";
-
-//alert(strFunc);
-func = new Function("obj", strFunc);
-_tmplCache[str] = func;
-}
-return func(data);
-} catch(e) {
-err = e.message;
-}
-return "< # ERROR: " + err + " # >";
-};
 
             $(document).bind("mobileinit", function () 
             {
@@ -652,10 +609,7 @@ BB1 5PQ </p>
                 
                     <a href="#page5-menu" data-icon="false" data-iconpos="right" data-theme="a" data-corners="false" data-shadow="false" data-iconshadow="false" style="border:none;"><img src="vendors/icons-png/bars-blue.png" style="border: none; outline:0;"></a>
             </div><!-- /header -->
-            
             <div data-role="content"><!-- content -->
-               
-               
                 <div id="map_wrapper">
                     <div id="map_canvas" class="mapping"></div>
                 </div>      
@@ -761,63 +715,17 @@ BB1 5PQ </p>
             
             document.getElementById("nav2_content").innerHTML=nav2_content;
             
-            
+            $("#map_wrapper").css('height',(window.innerHeight-150));
+              
              $(initialize);
 
     	    function initialize() {
-    var map;
-    var bounds = new google.maps.LatLngBounds();
-    var mapOptions = {
-        mapTypeId: 'roadmap'
-    };
-                    
-    // Display a map on the page
-    map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
-    map.setTilt(45);
-        
-    // Multiple Markers
-    var markers = [
-        ['Organised Chaos Studios', 53.706234,-2.475421],
-        ['Westholme Infants School', 53.752111,-2.508577],
-        ['Westholme Boys Junior', 53.755169,-2.509843],
-        ['Little Harwood Community Centre', 53.759964,-2.465404],
-        ['Fenniscowles Community Hall', 53.727617,-2.537523],
-        ['St Peters RC Primary School', 53.73696,-2.507161]
-    ];
-                        
-  
-        
-    // Display multiple markers on a map
-    var infoWindow = new google.maps.InfoWindow(), marker, i;
-    
-    // Loop through our array of markers & place each one on the map  
-    for( i = 0; i < markers.length; i++ ) {
-        var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
-        bounds.extend(position);
-        
-        marker = new google.maps.Marker({
-            position: position,
-            map: map,
-            title: markers[i][0]
-        });
-        
-        // Automatically center the map fitting all markers on the screen
-        map.fitBounds(bounds);
-      
-        google.maps.event.addListener(marker, "click", function(event) {
-            var area = this.get('position');           
-            var infoWindowHtml = parseTemplate($("#MarkerTemplate").html(), { location : position} );
-            infoWindow.setContent(infoWindowHtml);
-            infoWindow.open(map, this);
-         });
-    
-    }
+                  var latlng = new google.maps.LatLng(53.706234, -2.475421); //change lat & lng
+    		      var myOptions = { zoom: 14, center: latlng, mapTypeId: google.maps.MapTypeId.ROADMAP };
+    		      var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+    		      var marker = new google.maps.Marker({ position: latlng, title: "We Are Here!" });
 
-    // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
-    var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
-        this.setZoom(12);
-        google.maps.event.removeListener(boundsListener);
-    });
+    		      marker.setMap(map);
 
 }
 
@@ -825,6 +733,7 @@ $(document).on("pageinit", "#map", function() //Change #map to map page name
             {
                 initialize();
             });
+            
             
             
         </script>
